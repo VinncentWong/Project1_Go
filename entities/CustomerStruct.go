@@ -1,4 +1,4 @@
-package repository
+package entities
 
 type Customer struct {
 	Name     string `json:"name"`
