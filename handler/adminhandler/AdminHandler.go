@@ -25,7 +25,7 @@ func SetDb(_db *gorm.DB) {
 	db = _db
 }
 
-func (receiver *AdminHandler) Register(c *gin.Context) {
+func (*AdminHandler) Register(c *gin.Context) {
 	var registerDto dto.RegisterDto
 	err := c.ShouldBindJSON(&registerDto)
 	util.HandlingError(err)
@@ -46,7 +46,7 @@ func (receiver *AdminHandler) Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
-func (receiver *AdminHandler) Login(c *gin.Context) {
+func (*AdminHandler) Login(c *gin.Context) {
 	var loginDto dto.LoginDto
 	err := c.ShouldBindJSON(&loginDto)
 	util.HandlingError(err)
@@ -72,7 +72,7 @@ func (receiver *AdminHandler) Login(c *gin.Context) {
 	}
 }
 
-func (receiver *AdminHandler) GetAdminById(c *gin.Context) {
+func (*AdminHandler) GetAdminById(c *gin.Context) {
 	id, idExist := c.Params.Get("id")
 	if !idExist {
 		response := util.Response{
@@ -94,7 +94,7 @@ func (receiver *AdminHandler) GetAdminById(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (receiver *AdminHandler) DeleteAdminById(c *gin.Context) {
+func (*AdminHandler) DeleteAdminById(c *gin.Context) {
 	id, idExist := c.Params.Get("id")
 	if !idExist {
 		response := util.Response{
@@ -111,6 +111,112 @@ func (receiver *AdminHandler) DeleteAdminById(c *gin.Context) {
 		Message: "Success delete Admin Data",
 		Data:    nil,
 		Success: true,
+	}
+	c.JSON(http.StatusOK, response)
+}
+
+func (*AdminHandler) UpdateAdmin(c *gin.Context) {
+	id, idExist := c.Params.Get("id")
+	if !idExist {
+		response := util.Response{
+			Success: false,
+			Message: "Error when system was querying in database",
+			Data:    nil,
+		}
+		c.JSON(http.StatusInternalServerError, response)
+	}
+	var bodyAdmin entities.Admin
+	err := c.ShouldBindJSON(&bodyAdmin)
+	util.HandlingError(err)
+	result := db.Model(&bodyAdmin).Where("id = ?", id).Updates(&bodyAdmin)
+	util.HandlingError(result.Error)
+	mapData["data"] = bodyAdmin
+	response := util.Response{
+		Success: true,
+		Data:    mapData,
+		Message: "Success update Admin data! ",
+	}
+	c.JSON(http.StatusOK, response)
+}
+
+func (*AdminHandler) AddBook(c *gin.Context) {
+	var book entities.Buku
+	err := c.ShouldBindJSON(&book)
+	util.HandlingError(err)
+	result := db.Create(&book)
+	util.HandlingError(result.Error)
+	mapData["data"] = book
+	response := util.Response{
+		Message: "Success add book data! ",
+		Success: true,
+		Data:    mapData,
+	}
+	c.JSON(http.StatusCreated, response)
+}
+
+func (*AdminHandler) GetBook(c *gin.Context) {
+	id, idExist := c.Params.Get("id")
+	if !idExist {
+		response := util.Response{
+			Success: false,
+			Message: "Error when system was querying in database",
+			Data:    nil,
+		}
+		c.JSON(http.StatusInternalServerError, response)
+	}
+	var book entities.Buku
+	result := db.Where("id = ?", id).Take(&book)
+	util.HandlingError(result.Error)
+	mapData["data"] = book
+	response := util.Response{
+		Success: true,
+		Message: "Success find book data! ",
+		Data:    mapData,
+	}
+	c.JSON(http.StatusOK, response)
+}
+
+func (*AdminHandler) DeleteBook(c *gin.Context) {
+	id, idExist := c.Params.Get("id")
+	if !idExist {
+		response := util.Response{
+			Success: false,
+			Message: "Error when system was querying in database",
+			Data:    nil,
+		}
+		c.JSON(http.StatusInternalServerError, response)
+	}
+	var book entities.Buku
+	result := db.Where("id = ?", id).Delete(&book)
+	util.HandlingError(result.Error)
+	response := util.Response{
+		Message: "Success delete Book Data",
+		Data:    nil,
+		Success: true,
+	}
+	c.JSON(http.StatusOK, response)
+}
+
+func (*AdminHandler) UpdateBook(c *gin.Context) {
+	id, isIdExist := c.Params.Get("id")
+	if !isIdExist {
+		response := util.Response{
+			Success: false,
+			Message: "Error when system was querying in database",
+			Data:    nil,
+		}
+		c.JSON(http.StatusInternalServerError, response)
+	}
+	var book entities.Buku
+	err := c.ShouldBindJSON(&book)
+	util.HandlingError(err)
+	result := db.Model(&book).Where("id = ?", id).Updates(&book)
+	util.HandlingError(result.Error)
+	mapData["data"] = book
+	response := util.Response{
+		Success: true,
+		Data:    mapData,
+		Message: "Success update Book data! ",
 	}
 	c.JSON(http.StatusOK, response)
 }
