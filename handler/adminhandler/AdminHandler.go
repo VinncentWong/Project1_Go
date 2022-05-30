@@ -12,11 +12,8 @@ import (
 )
 
 var db *gorm.DB
-
 var Bcrypt *util.Bcrypt = new(util.Bcrypt)
-
 var Jwt *middleware.Jwt = new(middleware.Jwt)
-
 var mapData map[string]interface{} = make(map[string]interface{})
 
 type AdminHandler struct{}
@@ -69,6 +66,13 @@ func (*AdminHandler) Login(c *gin.Context) {
 			Data:    mapData,
 		}
 		c.JSON(http.StatusOK, response)
+	} else {
+		response := util.Response{
+			Success: false,
+			Message: "Unauthorizied",
+			Data:    nil,
+		}
+		c.JSON(http.StatusUnauthorized, response)
 	}
 }
 
