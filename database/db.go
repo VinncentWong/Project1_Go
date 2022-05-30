@@ -14,7 +14,7 @@ import (
 var db *gorm.DB
 
 func InitDb() *gorm.DB {
-	_db, err := gorm.Open(mysql.Open(os.Getenv("DNS")))
+	_db, err := gorm.Open(mysql.Open(os.Getenv("DNS")), &gorm.Config{})
 	util.HandlingError(err)
 	db = _db
 	err = db.AutoMigrate(&entities.Admin{}, &entities.Buku{}, &entities.Customer{})

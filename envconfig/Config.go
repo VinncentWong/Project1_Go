@@ -6,11 +6,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type Properties struct {
-	SECRET_KEY string
-}
-
-func (receiver *Properties) InitProperties() {
+func InitProperties() {
 	err := godotenv.Load()
 	util.HandlingError(err)
 }
