@@ -10,7 +10,9 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func GenerateToken(id uint, name string, email string) (string, error) {
+type Jwt struct{}
+
+func (receiver *Jwt) GenerateToken(id uint, name string, email string) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":    id,
 		"name":  name,
@@ -19,10 +21,10 @@ func GenerateToken(id uint, name string, email string) (string, error) {
 	})
 	fixToken, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
 	util.HandlingError(err)
-	return fixToken, err
+	return fixToken
 }
 
-func ValidateToken() gin.HandlerFunc {
+func (receiver *Jwt) ValidateToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get("Authorization")
 		token = token[7:]

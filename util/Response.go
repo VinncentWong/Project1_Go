@@ -2,6 +2,6 @@ package util
 
 type Response struct {
 	Message string
-	Data    map[string]string
+	Data    interface{}
 	Success bool
 }
