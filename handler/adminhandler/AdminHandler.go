@@ -57,14 +57,60 @@ func (receiver *AdminHandler) Login(c *gin.Context) {
 	var admin entities.Admin
 	result := db.Where("email = ?", tempAdmin.Email).Take(&admin)
 	util.HandlingError(result.Error)
-	Bcrypt.Matches(tempAdmin.Password, admin.Password)
-	var token middleware.IJwt = Jwt
-	jwtToken := token.GenerateToken(admin.ID, admin.Name, admin.Email)
-	mapData["data"] = jwtToken
+	isValid := Bcrypt.Matches(tempAdmin.Password, admin.Password)
+	if isValid {
+		var token middleware.IJwt = Jwt
+		jwtToken := token.GenerateToken(admin.ID, admin.Name, admin.Email)
+		mapData["data"] = admin
+		mapData["token"] = jwtToken
+		response := util.Response{
+			Success: true,
+			Message: "Admin Authenticated",
+			Data:    mapData,
+		}
+		c.JSON(http.StatusOK, response)
+	}
+}
+
+func (receiver *AdminHandler) GetAdminById(c *gin.Context) {
+	id, idExist := c.Params.Get("id")
+	if !idExist {
+		response := util.Response{
+			Success: false,
+			Message: "Error when system was querying in database",
+			Data:    nil,
+		}
+		c.JSON(http.StatusInternalServerError, response)
+	}
+	var admin entities.Admin
+	result := db.Where("id = ?", id).Take(&admin)
+	util.HandlingError(result.Error)
+	mapData["data"] = admin
 	response := util.Response{
 		Success: true,
-		Message: "Admin Authenticated",
+		Message: "Admin data found! ",
 		Data:    mapData,
+	}
+	c.JSON(http.StatusOK, response)
+}
+
+func (receiver *AdminHandler) DeleteAdminById(c *gin.Context) {
+	id, idExist := c.Params.Get("id")
+	if !idExist {
+		response := util.Response{
+			Success: false,
+			Message: "Error when system was querying in database",
+			Data:    nil,
+		}
+		c.JSON(http.StatusInternalServerError, response)
+	}
+	var admin entities.Admin
+	result := db.Where("id = ?", id).Delete(&admin)
+	util.HandlingError(result.Error)
+	response := util.Response{
+		Message: "Success delete Admin Data",
+		Data:    nil,
+		Success: true,
 	}
 	c.JSON(http.StatusOK, response)
 }
