@@ -12,7 +12,6 @@ import (
 )
 
 var db *gorm.DB
-var mapData map[string]interface{}
 var jwt middleware.IJwt = new(middleware.Jwt)
 var bcrypt util.Bcrypt
 
@@ -23,11 +22,17 @@ func SetDb(_db *gorm.DB) {
 type CustomerHandler struct{}
 
 func (*CustomerHandler) Register(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	var bodyRegister dto.RegisterDto
 	err := c.ShouldBindJSON(&bodyRegister)
 	util.HandlingError(err)
 	bodyRegister.Password = bcrypt.Encode(bodyRegister.Password)
-	result := db.Create(&bodyRegister)
+	customer := entities.Customer{
+		Name:     bodyRegister.Name,
+		Email:    bodyRegister.Email,
+		Password: bodyRegister.Password,
+	}
+	result := db.Create(&customer)
 	util.HandlingError(result.Error)
 	mapData["data"] = bodyRegister
 	response := util.Response{
@@ -39,6 +44,7 @@ func (*CustomerHandler) Register(c *gin.Context) {
 }
 
 func (*CustomerHandler) Login(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	var loginDto dto.LoginDto
 	err := c.ShouldBindJSON(&loginDto)
 	util.HandlingError(err)
@@ -67,6 +73,7 @@ func (*CustomerHandler) Login(c *gin.Context) {
 }
 
 func (*CustomerHandler) GetCustomerById(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	id, idExist := c.Params.Get("id")
 	if !idExist {
 		response := util.Response{
@@ -89,6 +96,7 @@ func (*CustomerHandler) GetCustomerById(c *gin.Context) {
 }
 
 func (*CustomerHandler) UpdateCustomerById(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	id, idExist := c.Params.Get("id")
 	if !idExist {
 		response := util.Response{
@@ -134,19 +142,21 @@ func (*CustomerHandler) DeleteCustomerById(c *gin.Context) {
 }
 
 func (*CustomerHandler) GetAllBook(c *gin.Context) {
-	var books []entities.Customer
+	var mapData map[string]interface{} = make(map[string]interface{})
+	var books []entities.Buku
 	result := db.Find(&books)
 	util.HandlingError(result.Error)
 	mapData["data"] = books
 	response := util.Response{
 		Message: "Success get Customers Data",
-		Data:    nil,
+		Data:    mapData,
 		Success: true,
 	}
 	c.JSON(http.StatusOK, response)
 }
 
 func (*CustomerHandler) GetBookById(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	id, idExist := c.Params.Get("id")
 	if !idExist {
 		response := util.Response{
