@@ -45,3 +45,47 @@ func (receiver *Jwt) ValidateToken() gin.HandlerFunc {
 		}
 	}
 }
+
+func (*Jwt) GenerateRefreshToken(id uint) string {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":  id,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+	})
+	fixedToken, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
+	util.HandlingError(err)
+	return fixedToken
+}
+
+func (*Jwt) ValidateRefreshToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.Request.Header.Get("Authorization")
+		token = token[7:]
+		fixedToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("SECRET_KEY")), nil
+		})
+		util.HandlingError(err)
+		claims, ok := fixedToken.Claims.(jwt.MapClaims)
+		id, ok := claims["id"].(uint)
+		if !ok {
+			response := util.Response{
+				Success: false,
+				Message: "Error when do assertion type!",
+				Data:    nil,
+			}
+			c.JSON(http.StatusInternalServerError, response)
+		}
+		if ok && fixedToken.Valid {
+			mapData := make(map[string]interface{})
+			refreshToken := new(Jwt).GenerateRefreshToken(id)
+			mapData["refreshToken"] = refreshToken
+			mapData["jwtToken"] = new(Jwt).GenerateToken(id, "", "")
+			c.Next()
+		} else {
+			response := util.Response{
+				Success: false,
+				Message: "Unauthorizied!",
+			}
+			c.JSON(http.StatusForbidden, response)
+		}
+	}
+}
