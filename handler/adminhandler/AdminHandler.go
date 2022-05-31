@@ -14,7 +14,6 @@ import (
 var db *gorm.DB
 var Bcrypt *util.Bcrypt = new(util.Bcrypt)
 var Jwt *middleware.Jwt = new(middleware.Jwt)
-var mapData map[string]interface{} = make(map[string]interface{})
 
 type AdminHandler struct{}
 
@@ -23,6 +22,7 @@ func SetDb(_db *gorm.DB) {
 }
 
 func (*AdminHandler) Register(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	var registerDto dto.RegisterDto
 	err := c.ShouldBindJSON(&registerDto)
 	util.HandlingError(err)
@@ -44,6 +44,7 @@ func (*AdminHandler) Register(c *gin.Context) {
 }
 
 func (*AdminHandler) Login(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	var loginDto dto.LoginDto
 	err := c.ShouldBindJSON(&loginDto)
 	util.HandlingError(err)
@@ -77,6 +78,7 @@ func (*AdminHandler) Login(c *gin.Context) {
 }
 
 func (*AdminHandler) GetAdminById(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	id, idExist := c.Params.Get("id")
 	if !idExist {
 		response := util.Response{
@@ -120,6 +122,7 @@ func (*AdminHandler) DeleteAdminById(c *gin.Context) {
 }
 
 func (*AdminHandler) UpdateAdmin(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	id, idExist := c.Params.Get("id")
 	if !idExist {
 		response := util.Response{
@@ -132,7 +135,15 @@ func (*AdminHandler) UpdateAdmin(c *gin.Context) {
 	var bodyAdmin entities.Admin
 	err := c.ShouldBindJSON(&bodyAdmin)
 	util.HandlingError(err)
-	result := db.Model(&bodyAdmin).Where("id = ?", id).Updates(&bodyAdmin)
+	if len(bodyAdmin.Password) > 0 {
+		bodyAdmin.Password = Bcrypt.Encode(bodyAdmin.Password)
+	}
+	admin := entities.Admin{
+		Name:     bodyAdmin.Name,
+		Password: bodyAdmin.Password,
+		Email:    bodyAdmin.Email,
+	}
+	result := db.Model(&admin).Where("id = ?", id).Updates(&admin)
 	util.HandlingError(result.Error)
 	mapData["data"] = bodyAdmin
 	response := util.Response{
@@ -144,6 +155,7 @@ func (*AdminHandler) UpdateAdmin(c *gin.Context) {
 }
 
 func (*AdminHandler) AddBook(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	var book entities.Buku
 	err := c.ShouldBindJSON(&book)
 	util.HandlingError(err)
@@ -159,6 +171,7 @@ func (*AdminHandler) AddBook(c *gin.Context) {
 }
 
 func (*AdminHandler) GetBook(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	id, idExist := c.Params.Get("id")
 	if !idExist {
 		response := util.Response{
@@ -202,6 +215,7 @@ func (*AdminHandler) DeleteBook(c *gin.Context) {
 }
 
 func (*AdminHandler) UpdateBook(c *gin.Context) {
+	var mapData map[string]interface{} = make(map[string]interface{})
 	id, isIdExist := c.Params.Get("id")
 	if !isIdExist {
 		response := util.Response{
