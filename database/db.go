@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"module/entities"
 	"module/handler/adminhandler"
 	"module/handler/customerhandler"
@@ -14,6 +15,7 @@ import (
 var db *gorm.DB
 
 func InitDb() *gorm.DB {
+	fmt.Println(os.Getenv("DNS"))
 	_db, err := gorm.Open(mysql.Open(os.Getenv("DNS")), &gorm.Config{})
 	util.HandlingError(err)
 	db = _db
