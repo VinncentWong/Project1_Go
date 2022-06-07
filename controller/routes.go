@@ -39,5 +39,5 @@ func InitRoutes() {
 	customer.GET("/getbook/:id", jwt.ValidateToken(), customerHandler.GetBookById)
 	customer.PATCH("/update/:id", jwt.ValidateToken(), customerHandler.UpdateCustomerById)
 	customer.DELETE("/delete/:id", jwt.ValidateToken(), customerHandler.DeleteCustomerById)
-	r.Run(":5000")
+	r.Run()
 }
