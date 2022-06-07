@@ -8,6 +8,7 @@ import (
 
 func main() {
 	envconfig.InitProperties()
-	database.InitDb()
+	// database.InitDb()
+	database.InitDbWithSupabase()
 	controller.InitRoutes()
 }
