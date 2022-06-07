@@ -1,1 +1,1 @@
-web: bin/Project1_Go
+web: Project1_Go
