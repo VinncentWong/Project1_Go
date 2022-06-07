@@ -4,6 +4,7 @@ import (
 	"module/handler/adminhandler"
 	"module/handler/customerhandler"
 	"module/middleware"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,6 +15,11 @@ func InitRoutes() {
 	var customerHandler customerhandler.ICustomerHandler = new(customerhandler.CustomerHandler)
 
 	r := gin.Default()
+	r.GET("/hello", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Hello World",
+		})
+	})
 	admin := r.Group("/admin")
 	admin.POST("/register", adminHandler.Register)
 	admin.POST("/login", adminHandler.Login)
