@@ -1,1 +1,1 @@
-build: go build -o bin/module main.go
+build: go build -o bin/Project1_Go main.go

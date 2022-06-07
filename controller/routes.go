@@ -15,7 +15,7 @@ func InitRoutes() {
 	var customerHandler customerhandler.ICustomerHandler = new(customerhandler.CustomerHandler)
 
 	r := gin.Default()
-	r.GET("/hello", func(c *gin.Context) {
+	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello World",
 		})
